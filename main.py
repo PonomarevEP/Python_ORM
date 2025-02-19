@@ -60,17 +60,16 @@ def init_db(engine, operation: int):
 def user_request(engine):
     session = sessionmaker(bind=engine)
     session = session()
+
+    variable = input("Введите Фамилию автора или  id_publisher: --> : ")
+    result = session.query(Book.title, Shop.name, Sale.count, Sale.date_sale).select_from(Shop).join(Stock).join(Book).join(Publisher).join(Sale)
     
-    last_name = input("Введите Фамилию автора: --> ")
-    author = session.query(Publisher).filter(Publisher.name == last_name).first()
-    
-    if author:
-        sales = session.query(Sale).join(Stock).join(Book).join(Publisher).filter(Publisher.name == last_name).all()
-        
-        for sale in sales:
-            print(f"{sale.stock.book.title} | {sale.stock.shop.name} | {sale.price} | {sale.date_sale}")
+    if variable.isdigit(): 
+        sales = result.filter(Publisher.id == int(variable)).all()
     else:
-        print("Такого автора нет")
+        sales = result.filter(Publisher.name == variable).all() 
+    for a, b, c, d in sales: 
+        print(f"{a: <40} | {b: <10} | {c: <8} | {d.strftime('%d-%m-%Y')}") 
         
 if __name__ == '__main__':
     greate_delete = input("Создать таблицы: 1, Удалить таблицы: 2. ---> ")
